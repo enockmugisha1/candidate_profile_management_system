@@ -39,13 +39,11 @@ router.post('/profile', authenticate, upload.fields([
   { name: 'certificates', maxCount: 10 },
 ]), async (req, res) => {
   try {
-    console.log('Received profile creation request:');
-    console.log('req.body:', req.body); // Debug: Log the request body
-    console.log('req.files:', req.files); // Debug: Log the uploaded files
+    console.log('Received profile creation request - req.body:', req.body);
+    console.log('Uploaded files:', req.files);
 
-    // Check if req.body is defined
     if (!req.body) {
-      return res.status(400).json({ msg: 'Request body is missing or malformed' });
+      return res.status(400).json({ msg: 'Request body is missing or not properly parsed' });
     }
 
     const {
@@ -64,25 +62,33 @@ router.post('/profile', authenticate, upload.fields([
       workHistory = '',
     } = req.body;
 
-    // Parse nested fields with fallback to empty values
+    // Validate required fields
+    if (!fullName) return res.status(400).json({ msg: 'Full Name is required' });
+    if (!email) return res.status(400).json({ msg: 'Email is required' });
+    if (!jobTitle) return res.status(400).json({ msg: 'Job Title is required' });
+
     const parsedAddress = address ? JSON.parse(address) : { city: '', country: '' };
     const parsedEducation = education ? JSON.parse(education) : { degree: '', institution: '', year: undefined, certificates: [] };
     const parsedWorkHistory = workHistory ? JSON.parse(workHistory) : [];
     const parsedSkills = skills ? JSON.parse(skills) : [];
 
-    // Construct jobPreferences from subfields
+    // Construct jobPreferences from FormData keys
     const parsedJobPreferences = {
       title: req.body['jobPreferences[title]'] || '',
-      type: req.body['jobPreferences[type]'] || '',
+      type: req.body['jobPreferences[type]'] || undefined, // Set to undefined if empty to avoid invalid enum
       salary: req.body['jobPreferences[salary]'] ? Number(req.body['jobPreferences[salary]']) : undefined,
       currency: req.body['jobPreferences[currency]'] || 'USD',
       location: req.body['jobPreferences[location]'] || '',
     };
 
-    // Handle resume upload
+    // Validate jobPreferences.type
+    const validTypes = ['On-site', 'Remote', 'Hybrid'];
+    if (parsedJobPreferences.type && !validTypes.includes(parsedJobPreferences.type)) {
+      return res.status(400).json({ msg: `Invalid jobPreferences.type value: ${parsedJobPreferences.type}. Must be one of ${validTypes.join(', ')}` });
+    }
+
     const resumePath = req.files && req.files.resume ? `/uploads/${req.files.resume[0].filename}` : req.body.resume;
 
-    // Handle certificates upload
     const certificates = [];
     if (req.files && req.files.certificates) {
       req.files.certificates.forEach((file, index) => {
@@ -135,13 +141,11 @@ router.put('/profile', authenticate, upload.fields([
   { name: 'certificates', maxCount: 10 },
 ]), async (req, res) => {
   try {
-    console.log('Received profile update request:');
-    console.log('req.body:', req.body); // Debug: Log the request body
-    console.log('req.files:', req.files); // Debug: Log the uploaded files
+    console.log('Received profile update request - req.body:', req.body);
+    console.log('Uploaded files:', req.files);
 
-    // Check if req.body is defined
     if (!req.body) {
-      return res.status(400).json({ msg: 'Request body is missing or malformed' });
+      return res.status(400).json({ msg: 'Request body is missing or not properly parsed' });
     }
 
     const {
@@ -160,6 +164,10 @@ router.put('/profile', authenticate, upload.fields([
       workHistory = '',
     } = req.body;
 
+    if (!fullName) return res.status(400).json({ msg: 'Full Name is required' });
+    if (!email) return res.status(400).json({ msg: 'Email is required' });
+    if (!jobTitle) return res.status(400).json({ msg: 'Job Title is required' });
+
     const parsedAddress = address ? JSON.parse(address) : { city: '', country: '' };
     const parsedEducation = education ? JSON.parse(education) : { degree: '', institution: '', year: undefined, certificates: [] };
     const parsedWorkHistory = workHistory ? JSON.parse(workHistory) : [];
@@ -167,12 +175,16 @@ router.put('/profile', authenticate, upload.fields([
 
     const parsedJobPreferences = {
       title: req.body['jobPreferences[title]'] || '',
-      type: req.body['jobPreferences[type]'] || '',
+      type: req.body['jobPreferences[type]'] || undefined,
       salary: req.body['jobPreferences[salary]'] ? Number(req.body['jobPreferences[salary]']) : undefined,
       currency: req.body['jobPreferences[currency]'] || 'USD',
       location: req.body['jobPreferences[location]'] || '',
     };
-    console.log('Constructed jobPreferences:', parsedJobPreferences);
+
+    const validTypes = ['On-site', 'Remote', 'Hybrid'];
+    if (parsedJobPreferences.type && !validTypes.includes(parsedJobPreferences.type)) {
+      return res.status(400).json({ msg: `Invalid jobPreferences.type value: ${parsedJobPreferences.type}. Must be one of ${validTypes.join(', ')}` });
+    }
 
     const resumePath = req.files && req.files.resume ? `/uploads/${req.files.resume[0].filename}` : req.body.resume;
 
