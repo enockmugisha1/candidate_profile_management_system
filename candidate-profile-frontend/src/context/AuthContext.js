@@ -19,11 +19,16 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const { data } = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-      localStorage.setItem('token', data.token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      setUser({ token: data.token });
+      
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+        setUser({ token: data.token });
+      } else {
+        throw new Error('Invalid token received from server');
+      }
     } catch (error) {
-      console.error('Login error:', error.message, error.response?.data);
+      console.error('Login error:', error.response?.data?.message || error.message);
       setUser(null);
       throw error;
     }
@@ -32,11 +37,16 @@ export const AuthProvider = ({ children }) => {
   const signup = async (fullName, email, password, phoneNumber) => {
     try {
       const { data } = await axios.post('http://localhost:5000/api/auth/signup', { fullName, email, password, phoneNumber });
-      localStorage.setItem('token', data.token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      setUser({ token: data.token });
+
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+        setUser({ token: data.token });
+      } else {
+        throw new Error('Invalid token received from server');
+      }
     } catch (error) {
-      console.error('Signup error:', error.message, error.response?.data);
+      console.error('Signup error:', error.response?.data?.message || error.message);
       setUser(null);
       throw error;
     }
@@ -50,7 +60,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
