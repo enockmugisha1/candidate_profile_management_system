@@ -34,7 +34,7 @@ router.post('/signup', async (req, res) => {
     console.log('User saved successfully:', user);
 
     // Generate JWT
-    const payload = { userId: user._id };
+    const payload = { userId: user._id, email: user.email }; // Include email in payload
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
     console.log('Token generated for user:', email, token);
 
@@ -63,7 +63,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    const payload = { userId: user._id };
+    const payload = { userId: user._id, email: user.email }; // Include email in payload
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
     console.log('Token generated for user:', email, token);
 

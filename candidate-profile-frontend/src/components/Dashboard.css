@@ -1,0 +1,89 @@
+/* Dashboard Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .logout-button {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .logout-button:hover {
+    background-color: #c82333;
+  }
+  
+  /* Certificate Entry in Form */
+  .certificate-entry {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  
+  /* Certificate Preview in Profile */
+  .certificate-preview {
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+    margin-top: 10px;
+  }
+  
+  .certificate-preview p {
+    margin: 5px 0;
+  }
+  
+  /* Medium screens (tablets, 768px and up) */
+  @media (min-width: 768px) {
+    .logout-button {
+      font-size: 1rem;
+      padding: 10px 20px;
+    }
+  
+    .certificate-entry {
+      padding: 15px;
+    }
+  }
+  
+  /* Large screens (desktops, 1024px and up) */
+  @media (min-width: 1024px) {
+    .logout-button {
+      font-size: 1.1rem;
+      padding: 12px 24px;
+    }
+  }
+  
+  /* Small screens (mobile, below 768px) */
+  @media (max-width: 767px) {
+    .dashboard-header {
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    .logout-button {
+      font-size: 0.85rem;
+      padding: 6px 12px;
+    }
+  
+    .certificate-entry {
+      padding: 8px;
+    }
+  }
+  
+  /* Extra small screens (below 480px) */
+  @media (max-width: 480px) {
+    .logout-button {
+      font-size: 0.8rem;
+      padding: 5px 10px;
+    }
+  
+    .certificate-entry {
+      padding: 5px;
+    }
+  }
